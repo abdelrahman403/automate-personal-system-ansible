@@ -1,4 +1,43 @@
 # Pycharm Tasks
 ---
 - name: Check Pycharm Installation
-  
+  stat:
+    path: "{{ pycharm_installation_location }}/bin/pycharm.sh"
+  register: pycharm_installed
+- block:  # group of tasks
+  - name: Create Destination Directories
+    file: 
+      name: "{{ item }}"
+      state: directory
+    with_items:
+      - "{{ pycharm_desktop_icon_location }}"
+
+  - name: Download Pycharm tar
+    unarchive:
+      src: "http://download.jetbrains.com/python/pycharm-{{ pycharm_edition }}-{{ pycharm_version }}.tar.gz"
+      dest: "{{ pycharm_download_location }}"
+      mode: 0644
+      copy: no
+      creates: "{{pycharm_download_location}}/pycharm-{{ pycharm_version }}"
+
+  - name: Move Pycharm to Installation Location
+    command: >
+      mv {{pycharm_download_location}}/pycharm-{{ pycharm_version }} {{ pycharm_installation_location }}
+      removes="{{pycharm_download_location}}/pycharm-{{ pycharm_version }}"
+      creates="{{ pycharm_installation_location }}"
+
+  - name: Make pycharm.sh Executable
+    file:
+      path: "{{ pycharm_installation_location }}/bin/pycharm.sh"
+      state: file
+      mode: 0755
+
+  - name: Generate .desktop File
+    template:
+      src: jetbrains-pycharm.desktop.j2
+      dest: "{{pycharm_desktop_icon_location}}/jetbrains-pycharm.desktop"
+
+  when: not pycharm_installed.stat.exists
+
+
+

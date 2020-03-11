@@ -1,0 +1,6 @@
+---
+pycharm_installation_location: "{{ ansible_env.HOME }}/pycharm"
+pycharm_download_location: "/tmp"
+pycharm_desktop_icon_location: "{{ ansible_env.HOME }}/.local/share/applications"
+pycharm_version: 2019.3.3
+pycharm_edition: professional
